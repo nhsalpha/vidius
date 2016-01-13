@@ -54,5 +54,3 @@ var Vidius = (function() {
   };
 
 })();
-
-console.log('Hello!');
