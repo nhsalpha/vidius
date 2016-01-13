@@ -7,8 +7,8 @@
   <script>
     Vidius.getAccessToken().done(function() {
     console.log('Hooray, authed');
-    Vidius.getFileListing().done(function(tree) {
-        console.log(tree);
+    Vidius.getMarkdownFiles().done(function(files) {
+        console.log(files);
 
         });
 

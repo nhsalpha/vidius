@@ -12,7 +12,7 @@ var GitHubAPI = function(accessToken, org, repo) {
     },
 
     getTree: function(sha) {
-      return $.get(API_URL + '/git/trees/' + sha);
+      return $.get(API_URL + '/git/trees/' + sha + '?recursive=1');
     },
 
   };
@@ -41,8 +41,16 @@ var Vidius = (function() {
       }).then(function(data) {
         return data.tree;
       });
+    },
 
+    getMarkdownFiles: function() {
+      return this.getFileListing().then(function(files) {
+        return files.filter(function(file) {
+          return file.path.endsWith('.md');
+        });
+      });
     }
+
   };
 
 })();
