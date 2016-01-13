@@ -15,50 +15,13 @@ CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
 use Rack::Session::Pool, :cookie_only => false
 
-def authenticated?
-  session[:access_token]
-end
-
-def authenticate!
-  erb :index, :locals => {:client_id => CLIENT_ID}
-end
 
 get '/' do
-  if !authenticated?
-    authenticate!
-  else
-    access_token = session[:access_token]
-    scopes = []
+  erb :index
+end
 
-    begin
-      auth_result = RestClient.get('https://api.github.com/user',
-                                   {:params => {:access_token => access_token},
-                                    :accept => :json})
-    rescue => e
-      # request didn't succeed because the token was revoked so we
-      # invalidate the token stored in the session and render the
-      # index page so that the user can start the OAuth flow again
-
-      session[:access_token] = nil
-      return authenticate!
-    end
-
-    # the request succeeded, so we check the list of current scopes
-    if auth_result.headers.include? :x_oauth_scopes
-      scopes = auth_result.headers[:x_oauth_scopes].split(', ')
-    end
-
-    auth_result = JSON.parse(auth_result)
-
-    if scopes.include? 'user:email'
-      auth_result['private_emails'] =
-        JSON.parse(RestClient.get('https://api.github.com/user/emails',
-                       {:params => {:access_token => access_token},
-                        :accept => :json}))
-    end
-
-    erb :advanced, :locals => auth_result
-  end
+get '/login' do
+  redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + CLIENT_ID
 end
 
 get '/github-oauth-callback' do

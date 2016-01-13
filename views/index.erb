@@ -2,10 +2,21 @@
 <meta charset="utf-8">
 <html>
   <head>
+    <script src="js/jquery-2.2.0.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      Vidius.getAccessToken().done(function() {
+      console.log('Hooray, authed');
+      Vidius.getMarkdownFiles().done(function(files) {
+          console.log(files);
+
+          });
+
+          });
+
+    </script>
   </head>
   <body>
-    <p>Well, hello there!</p>
-    <p>We're going to now talk to the GitHub API. Ready? <a href="https://github.com/login/oauth/authorize?scope=public_repo&client_id=<%= client_id %>">Click here</a> to begin!</a></p>
-    <p>If that link doesn't work, remember to provide your own <a href="http://developer.github.com/v3/oauth/#web-application-flow">Client ID</a>!</p>
+  Hello.
   </body>
 </html>
