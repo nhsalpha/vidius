@@ -74,3 +74,7 @@ get '/github-oauth-callback' do
 
   redirect '/'
 end
+
+get '/github-access-token' do
+  session[:access_token]
+end
