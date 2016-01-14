@@ -157,7 +157,7 @@ var FileEditor = React.createClass({
     return (
       <div id="file-editor">
         <h2>{this.props.file.path}</h2>
-        <FileContents text={this.state.fileContents} />
+        <FileContents text={this.state.fileContents} setContents={this.setFileContents} />
         <button>Save</button>
       </div>
     );
@@ -169,6 +169,9 @@ var FileEditor = React.createClass({
       this.setState({fileContents: text});
     }.bind(this));
   },
+  setFileContents: function(contents) {
+    this.setState({fileContents: contents});
+  }
 });
 
 var FileContents = React.createClass({
@@ -176,11 +179,15 @@ var FileContents = React.createClass({
     var disabled = this.isContentLoaded() ? "" : "disabled";
 
     return (
-      <textarea value={this.props.text} disabled={disabled} />
+      <textarea value={this.props.text} disabled={disabled} onChange={this.handleChange} />
     );
   },
   isContentLoaded: function() {
     return this.props.text !== null;
+  },
+
+  handleChange: function(event) {
+    this.props.setContents(event.target.value);
   }
 });
 
