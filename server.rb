@@ -45,5 +45,7 @@ get '/github-oauth-callback' do
 end
 
 get '/github-access-token' do
+  status 401 unless session[:access_token]
+
   session[:access_token]
 end
