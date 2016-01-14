@@ -60,7 +60,8 @@ var LoginScreen = React.createClass({
 var Application = React.createClass({
   getInitialState: function() {
     return {
-      files: []
+      files: [],
+      selectedFile: null
     };
   },
   componentWillMount: function() {
@@ -73,17 +74,31 @@ var Application = React.createClass({
   render: function() {
     return (
       <div>
-        <FileList files={this.state.files} />
+        <FileList
+          files={this.state.files}
+          selectFile={this.selectFile}
+          selectedFile={this.state.selectedFile} />
       </div>
     );
+  },
+  selectFile: function(file_key) {
+    this.setState({
+      selectedFile: file_key
+    });
   }
 });
 
 var FileList = React.createClass({
   render: function() {
     var files = this.props.files.map(function(file) {
-      return <FileSelector key={file.path} file_name={file.path} />;
-    });
+      return (
+        <FileSelector
+          key={file.path}
+          file_name={file.path}
+          selectFile={this.props.selectFile}
+          selectedFile={this.props.selectedFile} />
+      );
+    }.bind(this));
 
     return (
       <ul id="file-list">
@@ -95,11 +110,16 @@ var FileList = React.createClass({
 
 var FileSelector = React.createClass({
   render: function() {
+    var className = (this.props.file_name === this.props.selectedFile) ? "selected" : "";
+
     return (
-      <li>
-        <a href="#">{this.props.file_name}</a>
+      <li onClick={this.handleOnClick} className={className}>
+        {this.props.file_name}
       </li>
     );
+  },
+  handleOnClick: function() {
+    this.props.selectFile(this.props.file_name);
   }
 });
 
