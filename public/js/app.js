@@ -1,5 +1,3 @@
-/* Some Javascript */
-
 "use strict";
 
 var GitHubAPI = function(accessToken, org, repo) {
@@ -18,24 +16,9 @@ var GitHubAPI = function(accessToken, org, repo) {
   };
 }
 
-var Vidius = (function() {
-  var github = null;
-
-
+var Vidius = function(github) {
   return {
-    isAuthenticated: function() {
-      return null !== github;
-    },
-
-    getAccessToken: function() {
-      return $.get('/github-access-token')
-        .then(function(accessToken) {
-          github = GitHubAPI(accessToken, 'nhsalpha', 'content-editor-testing');
-        });
-    },
-
     getFileListing: function() {
-
       return github.getBranch('master').then(function(data) {
         return github.getTree(data.commit.sha);
       }).then(function(data) {
@@ -50,7 +33,5 @@ var Vidius = (function() {
         });
       });
     }
-
   };
-
-})();
+};

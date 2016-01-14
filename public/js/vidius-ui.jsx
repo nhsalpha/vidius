@@ -6,25 +6,28 @@ var AuthenticationState = {
   UNAUTHENTICATED: 3
 };
 
-
 var ApplicationContainer = React.createClass({
   getInitialState: function() {
     return {
-      accessToken: null,
+      vidius: null,
       isAuthenticated: AuthenticationState.WAITING
     };
   },
   componentWillMount: function() {
-    Vidius
-      .getAccessToken()
-      .done(function() {
+    $.get('/github-access-token')
+      .done(function(accessToken) {
+        // TODO get these from environment variables
+        var github = GitHubAPI(accessToken, 'nhsalpha', 'content-editor-testing'),
+            vidius = Vidius(github);
+
         this.setState({
+          vidius: vidius,
           isAuthenticated: AuthenticationState.AUTHENTICATED
-        })
+        });
       }.bind(this))
       .fail(function() {
         this.setState({
-          accessToken: null,
+          vidius: null,
           isAuthenticated: AuthenticationState.UNAUTHENTICATED
         })
       }.bind(this));
@@ -35,7 +38,7 @@ var ApplicationContainer = React.createClass({
         return <div />;
       };
       case AuthenticationState.AUTHENTICATED: {
-        return <Application />
+        return <Application vidius={this.state.vidius} />
       };
       case AuthenticationState.UNAUTHENTICATED: {
         return <LoginScreen />;
@@ -61,7 +64,7 @@ var Application = React.createClass({
     };
   },
   componentWillMount: function() {
-    Vidius.getMarkdownFiles().done(function(files) {
+    this.props.vidius.getMarkdownFiles().done(function(files) {
       this.setState({
         files: files
       });
