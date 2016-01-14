@@ -38,16 +38,18 @@ var GitHubAPI = function(accessToken, org, repo) {
 
 var Vidius = function(github) {
   return {
-    getFileListing: function() {
-      return github.getBranch('master').then(function(data) {
-        return github.getTree(data.commit.sha);
-      }).then(function(data) {
+    getBranch: function(name) {
+      return github.getBranch(name);
+    },
+
+    getFileListing: function(branch) {
+      return github.getTree(branch.commit.sha).then(function(data) {
         return data.tree;
       });
     },
 
-    getMarkdownFiles: function() {
-      return this.getFileListing().then(function(files) {
+    getMarkdownFiles: function(branch) {
+      return this.getFileListing(branch).then(function(files) {
         return files.filter(function(file) {
           return file.path.endsWith('.md');
         });
@@ -64,8 +66,14 @@ var Vidius = function(github) {
     },
 
     saveTextFileContents: function(file, contents) {
+      // TODO: branch name like `vidius/paulfurley/2016-01-28T18-34-56`
+      // 1. get sha of master
+      // 2. create a branch pointing to the sha of master
+      // 3. push the file to the new branch
+      // 4. make a pull request
+      //
       var commitMessage = 'Updated file',
-          branchName='master',
+          branchName='vidius/tmp',
           base64Contents = btoa(unescape(encodeURIComponent(contents)));
 
       return github.updateFileContents(file.path, commitMessage, base64Contents, file.sha, branchName);

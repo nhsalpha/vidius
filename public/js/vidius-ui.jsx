@@ -61,14 +61,21 @@ var Application = React.createClass({
   getInitialState: function() {
     return {
       files: [],
-      selectedFile: null
+      selectedFile: null,
+      branch: null
     };
   },
   componentWillMount: function() {
-    this.props.vidius.getMarkdownFiles().done(function(files) {
+    this.props.vidius.getBranch('master').then(function(branch) {
       this.setState({
-        files: files
+        branch: branch
       });
+
+      this.props.vidius.getMarkdownFiles(branch).done(function(files) {
+        this.setState({
+          files: files,
+        });
+      }.bind(this));
     }.bind(this));
   },
   render: function() {
