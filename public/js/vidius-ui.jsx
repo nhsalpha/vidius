@@ -1,5 +1,59 @@
 "use strict";
 
+var AuthenticationState = {
+  WAITING: 1,
+  AUTHENTICATED: 2,
+  UNAUTHENTICATED: 3
+};
+
+
+var ApplicationContainer = React.createClass({
+  getInitialState: function() {
+    return {
+      accessToken: null,
+      isAuthenticated: AuthenticationState.WAITING
+    };
+  },
+  componentWillMount: function() {
+    Vidius
+      .getAccessToken()
+      .done(function() {
+        this.setState({
+          isAuthenticated: AuthenticationState.AUTHENTICATED
+        })
+      }.bind(this))
+      .fail(function() {
+        this.setState({
+          accessToken: null,
+          isAuthenticated: AuthenticationState.UNAUTHENTICATED
+        })
+      }.bind(this));
+  },
+  render: function() {
+    switch(this.state.isAuthenticated) {
+      case AuthenticationState.WAITING: {
+        return <div />;
+      };
+      case AuthenticationState.AUTHENTICATED: {
+        return <Application />
+      };
+      case AuthenticationState.UNAUTHENTICATED: {
+        return <LoginScreen />;
+      };
+    }
+  }
+});
+
+var LoginScreen = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <a href="/login">Login with Github</a>
+      </div>
+    );
+  }
+});
+
 var Application = React.createClass({
   getInitialState: function() {
     return {
@@ -7,12 +61,10 @@ var Application = React.createClass({
     };
   },
   componentWillMount: function() {
-    Vidius.getAccessToken().done(function() {
-      Vidius.getMarkdownFiles().done(function(files) {
-        this.setState({
-          files: files
-        });
-      }.bind(this));
+    Vidius.getMarkdownFiles().done(function(files) {
+      this.setState({
+        files: files
+      });
     }.bind(this));
   },
   render: function() {
@@ -63,6 +115,6 @@ var FileEditor = React.createClass({
 });
 
 ReactDOM.render(
-  <Application />,
+  <ApplicationContainer />,
   document.getElementById("application-container")
 );
