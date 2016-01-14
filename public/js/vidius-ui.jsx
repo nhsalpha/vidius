@@ -158,7 +158,7 @@ var FileEditor = React.createClass({
       <div id="file-editor">
         <h2>{this.props.file.path}</h2>
         <FileContents text={this.state.fileContents} setContents={this.setFileContents} />
-        <button>Save</button>
+        <button onClick={this.handleSave}>Save</button>
       </div>
     );
   },
@@ -171,6 +171,9 @@ var FileEditor = React.createClass({
   },
   setFileContents: function(contents) {
     this.setState({fileContents: contents});
+  },
+  handleSave: function() {
+    this.props.vidius.saveTextFileContents(this.props.file, this.state.fileContents);
   }
 });
 

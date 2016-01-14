@@ -15,7 +15,24 @@ var GitHubAPI = function(accessToken, org, repo) {
 
     getFileContents: function(path, ref) {
       return $.get(API_URL + '/contents/' + path + '?ref=' + ref);
-    }
+    },
+
+    updateFileContents: function(path, message, content, sha, branch) {
+      return $.ajax({
+        method: 'PUT',
+        url: API_URL + '/contents/' + path,
+        headers: {
+          'Authorization': 'token ' + accessToken,
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          message: message,
+          sha: sha,
+          content: content,
+          branch: branch
+        }),
+      });
+    },
   };
 }
 
@@ -44,6 +61,14 @@ var Vidius = function(github) {
         // See http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
         return decodeURIComponent(escape(atob(contents.content.replace(/\s/g, ''))));
       });
+    },
+
+    saveTextFileContents: function(file, contents) {
+      var commitMessage = 'Updated file',
+          branchName='master',
+          base64Contents = btoa(unescape(encodeURIComponent(contents)));
+
+      return github.updateFileContents(file.path, commitMessage, base64Contents, file.sha, branchName);
     }
   };
 };
