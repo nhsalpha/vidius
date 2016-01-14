@@ -72,12 +72,20 @@ var Application = React.createClass({
     }.bind(this));
   },
   render: function() {
+    var panels = [
+      <FileList
+        files={this.state.files}
+        selectFile={this.selectFile}
+        selectedFile={this.state.selectedFile} />
+    ];
+
+    if (this.state.selectedFile !== null) {
+      panels.push(<FileEditor file={this.state.selectedFile} />);
+    }
+
     return (
       <div>
-        <FileList
-          files={this.state.files}
-          selectFile={this.selectFile}
-          selectedFile={this.state.selectedFile} />
+        {panels}
       </div>
     );
   },
@@ -127,7 +135,7 @@ var FileEditor = React.createClass({
   render: function() {
     return (
       <div id="file-editor">
-        <h2>type-2-diabetes/diet.md</h2>
+        <h2>{this.props.file}</h2>
 
         <textarea defaultValue={"The quick brown fox\njumps over the lazy\ndog"} />
 
