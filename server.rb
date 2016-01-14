@@ -24,6 +24,12 @@ get '/login' do
   redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + CLIENT_ID
 end
 
+get '/logout' do
+  session.clear
+
+  redirect '/'
+end
+
 get '/github-oauth-callback' do
   session_code = request.env['rack.request.query_hash']['code']
 
