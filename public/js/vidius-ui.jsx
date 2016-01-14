@@ -82,6 +82,7 @@ var Application = React.createClass({
     if (this.state.selectedFile !== null) {
       panels.push(
         <FileEditor key="fileEditor"
+          vidius={this.props.vidius}
           file={this.state.selectedFile} />
       );
     }
@@ -139,16 +140,47 @@ var FileSelector = React.createClass({
 });
 
 var FileEditor = React.createClass({
+  getInitialState: function() {
+    return {
+      fileContents: null
+    };
+  },
+  componentWillMount: function() {
+    this.getFileContents(this.props.file);
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if (nextProps.file.path !== this.props.file.path) {
+      this.getFileContents(nextProps.file);
+    }
+  },
   render: function() {
     return (
       <div id="file-editor">
         <h2>{this.props.file.path}</h2>
-
-        <textarea defaultValue={"The quick brown fox\njumps over the lazy\ndog"} />
-
+        <FileContents text={this.state.fileContents} />
         <button>Save</button>
       </div>
     );
+  },
+  getFileContents: function(file) {
+    this.setState({fileContents: null});
+
+    this.props.vidius.getTextFileContents(file).done(function(text) {
+      this.setState({fileContents: text});
+    }.bind(this));
+  },
+});
+
+var FileContents = React.createClass({
+  render: function() {
+    var disabled = this.isContentLoaded() ? "" : "disabled";
+
+    return (
+      <textarea value={this.props.text} disabled={disabled} />
+    );
+  },
+  isContentLoaded: function() {
+    return this.props.text !== null;
   }
 });
 
