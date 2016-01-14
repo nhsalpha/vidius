@@ -73,14 +73,17 @@ var Application = React.createClass({
   },
   render: function() {
     var panels = [
-      <FileList
+      <FileList key="fileList"
         files={this.state.files}
         selectFile={this.selectFile}
         selectedFile={this.state.selectedFile} />
     ];
 
     if (this.state.selectedFile !== null) {
-      panels.push(<FileEditor file={this.state.selectedFile} />);
+      panels.push(
+        <FileEditor key="fileEditor"
+          file={this.state.selectedFile} />
+      );
     }
 
     return (
@@ -89,9 +92,9 @@ var Application = React.createClass({
       </div>
     );
   },
-  selectFile: function(file_key) {
+  selectFile: function(file) {
     this.setState({
-      selectedFile: file_key
+      selectedFile: file
     });
   }
 });
@@ -102,7 +105,7 @@ var FileList = React.createClass({
       return (
         <FileSelector
           key={file.path}
-          file_name={file.path}
+          file={file}
           selectFile={this.props.selectFile}
           selectedFile={this.props.selectedFile} />
       );
@@ -118,16 +121,20 @@ var FileList = React.createClass({
 
 var FileSelector = React.createClass({
   render: function() {
-    var className = (this.props.file_name === this.props.selectedFile) ? "selected" : "";
+    var className = this.isSelected() ? "selected" : "";
 
     return (
       <li onClick={this.handleOnClick} className={className}>
-        {this.props.file_name}
+        {this.props.file.path}
       </li>
     );
   },
   handleOnClick: function() {
-    this.props.selectFile(this.props.file_name);
+    this.props.selectFile(this.props.file);
+  },
+  isSelected: function() {
+    return this.props.selectedFile !== null &&
+           this.props.selectedFile.path === this.props.file.path;
   }
 });
 
@@ -135,7 +142,7 @@ var FileEditor = React.createClass({
   render: function() {
     return (
       <div id="file-editor">
-        <h2>{this.props.file}</h2>
+        <h2>{this.props.file.path}</h2>
 
         <textarea defaultValue={"The quick brown fox\njumps over the lazy\ndog"} />
 
