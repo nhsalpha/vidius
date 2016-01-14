@@ -72,9 +72,8 @@ var Vidius = function(github) {
       });
     },
 
-    getTextFileContents: function(file) {
-      // TODO don't hardcode the ref
-      return github.getFileContents(file.path, 'master').then(function(contents) {
+    getTextFileContents: function(file, branch) {
+      return github.getFileContents(file.path, branch.commit.sha).then(function(contents) {
         // TODO check type is file and encoding is base64, otherwise fail
         // See http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
         return decodeURIComponent(escape(atob(contents.content.replace(/\s/g, ''))));

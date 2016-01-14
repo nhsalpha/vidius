@@ -107,7 +107,10 @@ var Application = React.createClass({
     });
   },
   loadTextFileContents: function(file) {
-    return this.props.vidius.getTextFileContents(file);
+    return this.props.vidius.getTextFileContents(
+      file,
+      this.state.branch
+    );
   },
   saveTextFileContents: function(file, contents) {
     return this.props.vidius.saveTextFileContents(file, contents);
