@@ -89,8 +89,9 @@ var Application = React.createClass({
     if (this.state.selectedFile !== null) {
       panels.push(
         <FileEditor key="fileEditor"
-          vidius={this.props.vidius}
-          file={this.state.selectedFile} />
+          file={this.state.selectedFile}
+          loadTextFileContents={this.loadTextFileContents}
+          saveTextFileContents={this.saveTextFileContents} />
       );
     }
 
@@ -104,6 +105,12 @@ var Application = React.createClass({
     this.setState({
       selectedFile: file
     });
+  },
+  loadTextFileContents: function(file) {
+    return this.props.vidius.getTextFileContents(file);
+  },
+  saveTextFileContents: function(file, contents) {
+    return this.props.vidius.saveTextFileContents(file, contents);
   }
 });
 
@@ -172,7 +179,7 @@ var FileEditor = React.createClass({
   getFileContents: function(file) {
     this.setState({fileContents: null});
 
-    this.props.vidius.getTextFileContents(file).done(function(text) {
+    this.props.loadTextFileContents(file).done(function(text) {
       this.setState({fileContents: text});
     }.bind(this));
   },
@@ -180,7 +187,7 @@ var FileEditor = React.createClass({
     this.setState({fileContents: contents});
   },
   handleSave: function() {
-    this.props.vidius.saveTextFileContents(this.props.file, this.state.fileContents);
+    this.props.saveTextFileContents(this.props.file, this.state.fileContents);
   }
 });
 
