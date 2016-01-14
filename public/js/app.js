@@ -5,33 +5,49 @@ var GitHubAPI = function(accessToken, org, repo) {
   var API_URL = 'https://api.github.com/repos/' + org + '/' + repo;
 
   return {
-    getBranch: function(branchName) {
-      return $.get(API_URL + '/branches/' + branchName);
-    },
-
-    getTree: function(sha) {
-      return $.get(API_URL + '/git/trees/' + sha + '?recursive=1');
-    },
-
-    getFileContents: function(path, ref) {
-      return $.get(API_URL + '/contents/' + path + '?ref=' + ref);
-    },
-
-    updateFileContents: function(path, message, content, sha, branch) {
+    callApi: function(method, endpoint, data) {
       return $.ajax({
-        method: 'PUT',
-        url: API_URL + '/contents/' + path,
+        method: method,
+        url: API_URL + endpoint,
         headers: {
           'Authorization': 'token ' + accessToken,
           'Content-Type': 'application/json'
         },
-        data: JSON.stringify({
+        data: JSON.stringify(data)
+      });
+
+    },
+
+    get: function(endpoint) {
+      return this.callApi('GET', endpoint);
+    },
+
+    put: function(endpoint, data) {
+      return this.callApi('PUT', endpoint, data);
+    },
+
+    getBranch: function(branchName) {
+      return this.get('/branches/' + branchName);
+    },
+
+    getTree: function(sha) {
+      return this.get('/git/trees/' + sha + '?recursive=1');
+    },
+
+    getFileContents: function(path, ref) {
+      return this.get('/contents/' + path + '?ref=' + ref);
+    },
+
+    updateFileContents: function(path, message, content, sha, branch) {
+      return this.put(
+        '/contents/' + path,
+        {
           message: message,
           sha: sha,
           content: content,
           branch: branch
-        }),
-      });
+        }
+      );
     },
   };
 }
