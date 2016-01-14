@@ -13,6 +13,9 @@ var GitHubAPI = function(accessToken, org, repo) {
       return $.get(API_URL + '/git/trees/' + sha + '?recursive=1');
     },
 
+    getFileContents: function(path, ref) {
+      return $.get(API_URL + '/contents/' + path + '?ref=' + ref);
+    }
   };
 }
 
@@ -31,6 +34,14 @@ var Vidius = function(github) {
         return files.filter(function(file) {
           return file.path.endsWith('.md');
         });
+      });
+    },
+
+    getTextFileContents: function(file) {
+      // TODO don't hardcode the ref
+      return github.getFileContents(file.path, 'master').then(function(contents) {
+        // TODO check type is file and encoding is base64, otherwise fail
+        return atob(contents.content.replace(/\s/g, ''));
       });
     }
   };
