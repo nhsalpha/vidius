@@ -113,7 +113,11 @@ var Application = React.createClass({
     );
   },
   saveTextFileContents: function(file, contents) {
-    return this.props.vidius.saveTextFileContents(file, contents);
+    return this.props.vidius.saveTextFileContents(
+      file,
+      contents,
+      this.state.branch
+    );
   }
 });
 

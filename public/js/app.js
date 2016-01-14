@@ -26,6 +26,10 @@ var GitHubAPI = function(accessToken, org, repo) {
       return this.callApi('PUT', endpoint, data);
     },
 
+    post: function(endpoint, data) {
+      return this.callApi('POST', endpoint, data);
+    },
+
     getBranch: function(branchName) {
       return this.get('/branches/' + branchName);
     },
@@ -49,6 +53,28 @@ var GitHubAPI = function(accessToken, org, repo) {
         }
       );
     },
+
+    createBranch: function(branchName, sha) {
+      return this.post(
+        '/git/refs',
+        {
+          ref: 'refs/heads/' + branchName,
+          sha: sha
+        }
+      );
+    },
+
+    createPullRequest: function(head, base, title, body) {
+      return this.post(
+        '/pulls',
+        {
+          head: head,
+          base: base,
+          title: title,
+          body: body
+        }
+      );
+    }
   };
 }
 
@@ -80,18 +106,33 @@ var Vidius = function(github) {
       });
     },
 
-    saveTextFileContents: function(file, contents) {
-      // TODO: branch name like `vidius/paulfurley/2016-01-28T18-34-56`
-      // 1. get sha of master
-      // 2. create a branch pointing to the sha of master
-      // 3. push the file to the new branch
-      // 4. make a pull request
-      //
-      var commitMessage = 'Updated file',
-          branchName='vidius/tmp',
+    saveTextFileContents: function(file, contents, branch) {
+      // TODO implement branch handling
+      if (branch.name !== 'master') {
+        throw 'editing branches not implemented';
+      }
+
+      // TODO: branch name like `content/paulfurley/2016-01-28T18-34-56`
+      var branchName = 'content/tmp',
+          // TODO make a better commit message
+          commitMessage = 'Updated file',
           base64Contents = btoa(unescape(encodeURIComponent(contents)));
 
-      return github.updateFileContents(file.path, commitMessage, base64Contents, file.sha, branchName);
+      return github.createBranch(branchName, branch.commit.sha).then(function() {
+        return github.updateFileContents(
+          file.path,
+          commitMessage,
+          base64Contents,
+          file.sha,
+          branchName
+        );
+      }).then(function() {
+        return github.createPullRequest(
+          branchName,
+          'master',
+          commitMessage
+        );
+      });
     }
   };
 };
