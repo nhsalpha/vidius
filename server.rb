@@ -3,13 +3,6 @@ require 'sinatra'
 require 'rest_client'
 require 'json'
 
-# !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
-# Instead, set and test environment variables, like below
-# if ENV['GITHUB_CLIENT_ID'] && ENV['GITHUB_CLIENT_SECRET']
-#  CLIENT_ID        = ENV['GITHUB_CLIENT_ID']
-#  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
-# end
-
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
