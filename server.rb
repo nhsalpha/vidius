@@ -3,13 +3,13 @@ require 'sinatra'
 require 'rest_client'
 require 'json'
 require 'resque'
+require 'redis'
 require './lib/preview'
 
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
 use Rack::Session::Pool, :cookie_only => false
-
 
 get '/' do
   erb :index
@@ -52,8 +52,14 @@ post '/preview' do
     return 'Missing parameters'
   end
 
+  job_key = SecureRandom.uuid
+
+  redis = Redis.new
+  redis.set(job_key, nil, ex: 300)
+
   Resque.enqueue(
     Preview,
+    job_key,
     # TODO get this from the client instead
     session[:access_token],
     params['git_ref'],
@@ -61,5 +67,11 @@ post '/preview' do
     params['file_contents'],
   )
 
-  'POSTed to preview!'
+  # FIXME
+  'http://localhost:9292/preview/' + job_key
+end
+
+get '/preview/:job_key' do
+  redis = Redis.new
+  redis.get(params[:job_key])
 end
