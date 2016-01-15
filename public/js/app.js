@@ -134,6 +134,11 @@ var Vidius = function(github) {
           'master',
           commitMessage
         );
+      }).then(function(pullRequestData) {
+        return {
+          link: pullRequestData.html_url,
+          message: pullRequestData.html_url.replace(/https?:\/\//, '')
+        };
       });
     }
   };

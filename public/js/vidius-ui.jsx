@@ -163,7 +163,8 @@ var FileSelector = React.createClass({
 var FileEditor = React.createClass({
   getInitialState: function() {
     return {
-      fileContents: null
+      fileContents: null,
+      savedMessage: null
     };
   },
   componentWillMount: function() {
@@ -175,11 +176,26 @@ var FileEditor = React.createClass({
     }
   },
   render: function() {
+    var statusMessage = null;
+
+    if (this.state.savedMessage !== null) {
+      statusMessage = (
+        <span className="saved">
+          <a href={this.state.savedMessage.link}>
+            {this.state.savedMessage.message}
+          </a>
+        </span>
+      );
+    }
+
     return (
       <div id="file-editor">
         <h2>{this.props.file.path}</h2>
         <FileContents text={this.state.fileContents} setContents={this.setFileContents} />
-        <button onClick={this.handleSave}>Save</button>
+        <p>
+          <button onClick={this.handleSave}>Save</button>
+          {statusMessage}
+        </p>
       </div>
     );
   },
@@ -194,7 +210,15 @@ var FileEditor = React.createClass({
     this.setState({fileContents: contents});
   },
   handleSave: function() {
-    this.props.saveTextFileContents(this.props.file, this.state.fileContents);
+    this.props.saveTextFileContents(this.props.file, this.state.fileContents)
+      .done(function(data) {
+        this.setState({
+          savedMessage: {
+            link: data.link,
+            message: data.message
+          }
+        });
+      }.bind(this));
   }
 });
 
