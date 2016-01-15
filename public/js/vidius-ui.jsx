@@ -203,14 +203,15 @@ var FileEditor = React.createClass({
     this.setState({fileContents: null});
 
     this.props.loadTextFileContents(file).done(function(text) {
-      this.setState({fileContents: text});
+      var strippedText = text.replace(/\r?\n?$/, '');
+      this.setState({fileContents: strippedText});
     }.bind(this));
   },
   setFileContents: function(contents) {
     this.setState({fileContents: contents});
   },
   handleSave: function() {
-    this.props.saveTextFileContents(this.props.file, this.state.fileContents)
+    this.props.saveTextFileContents(this.props.file, this.state.fileContents + '\n')
       .done(function(data) {
         this.setState({
           savedMessage: {
