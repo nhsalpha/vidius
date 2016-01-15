@@ -30,6 +30,7 @@ PLATFORMS
 
 DEPENDENCIES
   json
+  redis
   resque (~> 1.22.0)
   rest_client
   sinatra
