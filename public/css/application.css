@@ -1,5 +1,33 @@
 body {
   font-family: Helvetica Neue, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #0072c6;
+  color: #fff;
+  overflow: hidden;
+  padding: 10px;
+}
+
+header h1 {
+  float: left;
+  font-size: 24px;
+  line-height: 36px;
+  margin: 0;
+}
+
+header p {
+  float: right;
+  line-height: 36px;
+  margin: 0;
+}
+
+header a {
+  color: inherit;
 }
 
 #file-list {
