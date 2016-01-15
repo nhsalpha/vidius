@@ -94,3 +94,11 @@ button {
   line-height: 32px;
   padding: 0 1em;
 }
+
+.saved:before {
+  color: #006647;
+  content: "✔";
+  display: inline-block;
+  margin: 0 3px 0 10px;
+  text-decoration: none;
+}
