@@ -212,11 +212,10 @@ var FileEditor = React.createClass({
   handleSave: function() {
     this.props.saveTextFileContents(this.props.file, this.state.fileContents)
       .done(function(data) {
-        // TODO this shouldn't have to deal with the raw Github response
         this.setState({
           savedMessage: {
-            link: data.html_url,
-            message: data.html_url.replace(/https?:\/\//, '')
+            link: data.link,
+            message: data.message
           }
         });
       }.bind(this));
