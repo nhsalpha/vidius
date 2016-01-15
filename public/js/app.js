@@ -112,8 +112,10 @@ var Vidius = function(github) {
         throw 'editing branches not implemented';
       }
 
-      // TODO: branch name like `content/paulfurley/2016-01-28T18-34-56`
-      var branchName = 'content/tmp',
+      var now = new Date(),
+          timestamp = now.toISOString().replace(/:/g, '-').replace(/\..*$/, ''),
+          // TODO: include user like `content/paulfurley/2016-01-28T18-34-56`
+          branchName = 'content/' + timestamp,
           // TODO make a better commit message
           commitMessage = 'Updated file',
           base64Contents = btoa(unescape(encodeURIComponent(contents)));
