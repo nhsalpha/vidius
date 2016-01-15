@@ -2,6 +2,8 @@ require 'bundler/setup'
 require 'sinatra'
 require 'rest_client'
 require 'json'
+require 'resque'
+require './lib/preview'
 
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
@@ -41,4 +43,23 @@ get '/github-access-token' do
   status 401 unless session[:access_token]
 
   session[:access_token]
+end
+
+post '/preview' do
+  unless params['git_ref'] && params['file_path'] && params['file_contents']
+    status 400
+    # TODO Be more helpful
+    return 'Missing parameters'
+  end
+
+  Resque.enqueue(
+    Preview,
+    # TODO get this from the client instead
+    session[:access_token],
+    params['git_ref'],
+    params['file_path'],
+    params['file_contents'],
+  )
+
+  'POSTed to preview!'
 end
