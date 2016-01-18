@@ -169,7 +169,7 @@ private
   end
 
   def update_job
-    redis = Redis.new
+    redis = get_redis()
 
     log("Updating job with preview URL: #{@s3_bucket_url}")
     redis.set(job_key, @s3_bucket_url)

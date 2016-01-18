@@ -5,6 +5,7 @@ require 'json'
 require 'resque'
 require 'redis'
 require './lib/preview'
+require './lib/redis'
 
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
@@ -54,9 +55,10 @@ post '/preview' do
 
   job_key = SecureRandom.uuid
 
-  redis = Redis.new
+  redis = get_redis()
   redis.set(job_key, nil, ex: 300)
 
+  Resque.redis = redis
   Resque.enqueue(
     Preview,
     job_key,
