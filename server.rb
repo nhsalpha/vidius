@@ -69,8 +69,7 @@ post '/preview' do
     params['file_contents'],
   )
 
-  # FIXME
-  'http://localhost:9292/preview/' + job_key
+  request.base_url + '/preview/' + job_key
 end
 
 get '/preview/:job_key' do
