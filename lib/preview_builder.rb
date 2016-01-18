@@ -70,7 +70,11 @@ private
   end
 
   def replace_file_for_preview
-    # TODO implement
+    log("Replacing the contents of #{file_path}")
+    File.write(
+      File.join(@temp_dir, file_path),
+      file_contents,
+    )
   end
 
   def build_jekyll
