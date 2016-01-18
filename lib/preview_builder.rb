@@ -1,14 +1,14 @@
 require 'jekyll'
 require 'tempfile'
-require './lib/github_api'
 
 class PreviewBuilder
-  def initialize(file_contents:, file_path:, git_ref:, github_api:, job_key:)
+  def initialize(file_contents:, file_path:, git_ref:, github_api:, job_key:, s3_api:)
     @file_contents = file_contents
     @file_path = file_path
     @git_ref = git_ref
     @github_api = github_api
     @job_key = job_key
+    @s3_api = s3_api
   end
 
   def process
@@ -28,6 +28,7 @@ private
     :git_ref,
     :github_api,
     :job_key,
+    :s3_api
   )
 
   def log(message)
@@ -59,7 +60,7 @@ private
       "tar", 
       "-C", 
       @temp_dir, 
-      "--strip-components", 
+      "--strip-components",
       "1", 
       "-xzf", 
       @temp_file.path,
@@ -87,14 +88,86 @@ private
   end
 
   def upload_to_s3
-    # TODO implement
-    @s3_bucket_url = "http://alpha.nhs.uk"
+    s3_bucket_name = "vidius-preview-#{job_key}"
+
+    # Make a bucket
+    log("Creating S3 bucket #{s3_bucket_name}")
+    bucket = s3_api.create_bucket(
+      acl: "public-read",
+      bucket: s3_bucket_name,
+      create_bucket_configuration: {
+        location_constraint: "eu-west-1"
+      },
+    )
+
+    # Enable static website hosting
+    log("… enabling static website hosting")
+    s3_api.put_bucket_website(
+      bucket: s3_bucket_name,
+      website_configuration: {
+        index_document: {
+          suffix: "index",
+        },
+      },
+    )
+
+    # Grab all the files from the build directory
+    files = Dir.glob(File.join(@build_dir, "**/*")).reject { |path|
+      File.directory?(path)
+    }
+    
+    # Work out a key and content-type for each file
+    files = files.map { |path|
+      # TODO raise a more helpful error
+      raise "nope" unless path.start_with?(@build_dir)
+
+      content_type = case File.extname(path)
+                     when ".html"
+                       "text/html"
+                     when ".css"
+                       "text/css"
+                     when ".js"
+                       "application/javascript"
+                     when ".svg"
+                       "image/svg+xml"
+                     when ".png"
+                       "image/png"
+                     when ".jpg"
+                       "image/jpeg"
+                     end
+
+      s3_key = path.sub(@build_dir, "").sub(/^\//, "")
+
+      if File.extname(path) == ".html"
+        s3_key = s3_key.sub(/.html$/, "")
+      end
+
+      OpenStruct.new(
+        path: path,
+        s3_key: s3_key,
+        content_type: content_type,
+      )
+    }
+
+    # Loop through files and upload them
+    log("… uploading files to S3 bucket")
+    files.each do |file|
+      s3_api.put_object(
+        bucket: s3_bucket_name,
+        key: file.s3_key,
+        body: File.read(file.path),
+        content_type: file.content_type,
+        acl: "public-read",
+      )
+    end
+
+    @s3_bucket_url = "http://#{s3_bucket_name}.s3-website-eu-west-1.amazonaws.com"
   end
 
   def update_job
     redis = Redis.new
 
-    log("Updating job with preview URL")
+    log("Updating job with preview URL: #{@s3_bucket_url}")
     redis.set(job_key, @s3_bucket_url)
   end
 
