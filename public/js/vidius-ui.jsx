@@ -91,7 +91,8 @@ var Application = React.createClass({
         <FileEditor key="fileEditor"
           file={this.state.selectedFile}
           loadTextFileContents={this.loadTextFileContents}
-          saveTextFileContents={this.saveTextFileContents} />
+          saveTextFileContents={this.saveTextFileContents}
+          generatePreview={this.generatePreview} />
       );
     }
 
@@ -106,6 +107,14 @@ var Application = React.createClass({
       selectedFile: file
     });
   },
+  generatePreview: function(file, contents) {
+    return this.props.vidius.generatePreview(
+      file,
+      contents,
+      this.state.branch
+    );
+  },
+
   loadTextFileContents: function(file) {
     return this.props.vidius.getTextFileContents(
       file,
@@ -164,7 +173,8 @@ var FileEditor = React.createClass({
   getInitialState: function() {
     return {
       fileContents: null,
-      savedMessage: null
+      savedMessage: null,
+      generatingPreview: false
     };
   },
   componentWillMount: function() {
@@ -176,7 +186,8 @@ var FileEditor = React.createClass({
     }
   },
   render: function() {
-    var statusMessage = null;
+    var statusMessage = null,
+        previewButton = null;
 
     if (this.state.savedMessage !== null) {
       statusMessage = (
@@ -188,12 +199,23 @@ var FileEditor = React.createClass({
       );
     }
 
+    if (this.state.generatingPreview) {
+      previewButton = (
+        <button disabled={true}>Generating preview…</button>
+      );
+    } else {
+      previewButton = (
+        <button onClick={this.handlePreview}>Preview</button>
+      );
+    }
+
     return (
       <div id="file-editor">
         <h2>{this.props.file.path}</h2>
         <FileContents text={this.state.fileContents} setContents={this.setFileContents} />
         <p>
           <button onClick={this.handleSave}>Save</button>
+          {previewButton}
           {statusMessage}
         </p>
       </div>
@@ -219,6 +241,16 @@ var FileEditor = React.createClass({
             message: data.message
           }
         });
+      }.bind(this));
+  },
+
+  handlePreview: function() {
+    this.setState({generatingPreview: true});
+    this.props.generatePreview(this.props.file, this.state.fileContents + '\n')
+      .done(function(preview_url) {
+        console.log('Opening preview ' + preview_url);
+        window.open(preview_url);
+        this.setState({generatingPreview: false});
       }.bind(this));
   }
 });
