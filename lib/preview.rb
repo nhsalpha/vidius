@@ -16,7 +16,8 @@ class Preview
 
     s3_api = Aws::S3::Client.new(
       region: 'eu-west-1',
-      # TODO be explicit that credentials are pulled from ENV
+      access_key_id: AWS_ACCESS_KEY_ID,
+      secret_access_key: AWS_SECRET_ACCESS_KEY,
     )
 
     builder = PreviewBuilder.new(
