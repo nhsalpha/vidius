@@ -8,3 +8,7 @@ REDIS_URL = ENV.fetch('REDIS_URL', 'redis://localhost:6379')
 # AWS S3 credentials
 AWS_ACCESS_KEY_ID = ENV.fetch('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = ENV.fetch('AWS_SECRET_ACCESS_KEY')
+
+# The Github repo being edited
+GITHUB_REPO_OWNER = ENV.fetch('GITHUB_REPO_OWNER')
+GITHUB_REPO_NAME = ENV.fetch('GITHUB_REPO_NAME')

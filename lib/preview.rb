@@ -8,9 +8,8 @@ class Preview
   def self.perform(job_key, access_token, git_ref, file_path, file_contents)
     github_api = GithubApi.new(
       api_url: "https://api.github.com",
-      # TODO don't hardcode these, get them from ENV
-      owner: 'nhsalpha',
-      repo: 'content-editor-testing',
+      owner: GITHUB_REPO_OWNER,
+      repo: GITHUB_REPO_NAME,
       access_token: access_token,
     )
 
