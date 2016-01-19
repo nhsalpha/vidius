@@ -30,6 +30,14 @@ building it, uploading to a new S3 bucket and passing the URL to the app.
 
 ## Use Vidius in local development mode
 
+### Install dependencies
+
+You will need to install:
+
+- Redis (server)
+- Ruby version specified in [.ruby-version](https://github.com/nhsalpha/vidius/blob/master/.ruby-version) - see [rbenv](https://github.com/rbenv/rbenv)
+- Ruby dependencies (`bundle install`)
+
 ### Set up your environment
 
 We've configured two GitHub applications (production and development) in order
