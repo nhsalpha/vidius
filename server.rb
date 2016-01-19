@@ -2,19 +2,15 @@ require 'bundler/setup'
 require 'sinatra'
 require 'rest_client'
 require 'json'
-
-# !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
-# Instead, set and test environment variables, like below
-# if ENV['GITHUB_CLIENT_ID'] && ENV['GITHUB_CLIENT_SECRET']
-#  CLIENT_ID        = ENV['GITHUB_CLIENT_ID']
-#  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
-# end
+require 'resque'
+require 'redis'
+require './lib/preview'
+require './lib/redis'
 
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
 use Rack::Session::Pool, :cookie_only => false
-
 
 get '/' do
   erb :index
@@ -48,4 +44,35 @@ get '/github-access-token' do
   status 401 unless session[:access_token]
 
   session[:access_token]
+end
+
+post '/preview' do
+  unless params['git_ref'] && params['file_path'] && params['file_contents']
+    status 400
+    # TODO Be more helpful
+    return 'Missing parameters'
+  end
+
+  job_key = SecureRandom.uuid
+
+  redis = get_redis()
+  redis.set(job_key, nil, ex: 300)
+
+  Resque.redis = redis
+  Resque.enqueue(
+    Preview,
+    job_key,
+    # TODO get this from the client instead
+    session[:access_token],
+    params['git_ref'],
+    params['file_path'],
+    params['file_contents'],
+  )
+
+  request.base_url + '/preview/' + job_key
+end
+
+get '/preview/:job_key' do
+  redis = Redis.new
+  redis.get(params[:job_key])
 end
