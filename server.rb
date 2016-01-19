@@ -29,11 +29,15 @@ end
 get '/github-oauth-callback' do
   session_code = request.env['rack.request.query_hash']['code']
 
-  result = RestClient.post('https://github.com/login/oauth/access_token',
-                          {:client_id => CLIENT_ID,
-                           :client_secret => CLIENT_SECRET,
-                           :code => session_code},
-                           :accept => :json)
+  result = RestClient.post(
+    'https://github.com/login/oauth/access_token',
+    {
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code: session_code,
+    },
+    accept: :json,
+  )
 
   session[:access_token] = JSON.parse(result)['access_token']
 
