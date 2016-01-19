@@ -49,10 +49,12 @@ get '/github-access-token' do
 end
 
 post '/preview' do
-  unless params['git_ref'] && params['file_path'] && params['file_contents']
+  expected_params = %w(git_ref file_path file_contents)
+  missing_params = expected_params.reject { |p| params[p] }
+
+  if missing_params.any?
     status 400
-    # TODO Be more helpful
-    return 'Missing parameters'
+    return "Missing parameters: #{missing_params.join(", ")}."
   end
 
   job_key = SecureRandom.uuid
