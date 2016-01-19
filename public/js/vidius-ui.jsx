@@ -16,8 +16,11 @@ var ApplicationContainer = React.createClass({
   componentWillMount: function() {
     $.get('/github-access-token')
       .done(function(accessToken) {
-        // TODO get these from environment variables
-        var github = GitHubAPI(accessToken, 'nhsalpha', 'content-editor-testing'),
+        var github = GitHubAPI(
+              accessToken,
+              config.githubRepoOwner,
+              config.githubRepoName
+            ),
             vidius = Vidius(github);
 
         this.setState({

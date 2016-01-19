@@ -78,3 +78,8 @@ get '/preview/:job_key' do
   redis = Redis.new
   redis.get(params[:job_key])
 end
+
+get '/config.js' do
+  content_type "application/javascript"
+  erb :"config.js"
+end
