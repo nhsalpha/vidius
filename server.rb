@@ -6,9 +6,7 @@ require 'resque'
 require 'redis'
 require './lib/preview'
 require './lib/redis'
-
-CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
-CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
+require './lib/config'
 
 use Rack::Session::Pool, :cookie_only => false
 
@@ -17,7 +15,7 @@ get '/' do
 end
 
 get '/login' do
-  redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + CLIENT_ID
+  redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + GITHUB_CLIENT_ID
 end
 
 get '/logout' do
@@ -29,11 +27,15 @@ end
 get '/github-oauth-callback' do
   session_code = request.env['rack.request.query_hash']['code']
 
-  result = RestClient.post('https://github.com/login/oauth/access_token',
-                          {:client_id => CLIENT_ID,
-                           :client_secret => CLIENT_SECRET,
-                           :code => session_code},
-                           :accept => :json)
+  result = RestClient.post(
+    'https://github.com/login/oauth/access_token',
+    {
+      client_id: GITHUB_CLIENT_ID,
+      client_secret: GITHUB_CLIENT_SECRET,
+      code: session_code,
+    },
+    accept: :json,
+  )
 
   session[:access_token] = JSON.parse(result)['access_token']
 
@@ -75,4 +77,9 @@ end
 get '/preview/:job_key' do
   redis = Redis.new
   redis.get(params[:job_key])
+end
+
+get '/config.js' do
+  content_type "application/javascript"
+  erb :"config.js"
 end
