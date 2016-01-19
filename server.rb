@@ -6,9 +6,7 @@ require 'resque'
 require 'redis'
 require './lib/preview'
 require './lib/redis'
-
-CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
-CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
+require './lib/config'
 
 use Rack::Session::Pool, :cookie_only => false
 
@@ -17,7 +15,7 @@ get '/' do
 end
 
 get '/login' do
-  redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + CLIENT_ID
+  redirect 'https://github.com/login/oauth/authorize?scope=public_repo&client_id=' + GITHUB_CLIENT_ID
 end
 
 get '/logout' do
@@ -32,8 +30,8 @@ get '/github-oauth-callback' do
   result = RestClient.post(
     'https://github.com/login/oauth/access_token',
     {
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
+      client_id: GITHUB_CLIENT_ID,
+      client_secret: GITHUB_CLIENT_SECRET,
       code: session_code,
     },
     accept: :json,
