@@ -1,0 +1,17 @@
+# These refer to a Github application used for OAuth.
+# Populate from https://github.com/organizations/nhsalpha/settings/applications/
+export GH_BASIC_CLIENT_ID=
+export GH_BASIC_SECRET_ID=
+
+# We use AWS S3 for creating preview buckets.
+# These credentials are for an IAM user with permissions to create and populate buckets.
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+
+# Which Github user or organisation and repository (eg nhsalpha and alpha.nhs.uk)
+# this Vidius instance should edit
+export GITHUB_REPO_OWNER=
+export GITHUB_REPO_NAME=
+
+# If you're using a non-default location for your Redis server, set it here:
+# REDIS_URL="redis://username:password@redis-hostname:6379"
