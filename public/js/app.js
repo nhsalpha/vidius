@@ -146,8 +146,12 @@ var Vidius = function(github) {
 
       github.getFileContents(file.path, branch.commit.sha).then(
         function(contents) {
-          // TODO check type is file and encoding is base64, otherwise fail
-          deferred.resolve(decodeBase64ToText(contents.content));
+          if (contents.type === "file" && contents.encoding === "base64") {
+            deferred.resolve(decodeBase64ToText(contents.content));
+          }
+          else {
+            deferred.reject();
+          }
         },
         function() {
           deferred.reject();
