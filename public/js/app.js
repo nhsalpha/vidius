@@ -78,6 +78,15 @@ var GitHubAPI = function(accessToken, org, repo) {
   };
 }
 
+// http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
+var decodeBase64ToText = function(base64) {
+  return decodeURIComponent(escape(atob(base64.replace(/\s/g, ''))));
+}
+
+var encodeTextToBase64 = function(text) {
+  return btoa(unescape(encodeURIComponent(text)));
+}
+
 var Vidius = function(github) {
   return {
     getBranch: function(name) {
@@ -131,11 +140,23 @@ var Vidius = function(github) {
     },
 
     getTextFileContents: function(file, branch) {
-      return github.getFileContents(file.path, branch.commit.sha).then(function(contents) {
-        // TODO check type is file and encoding is base64, otherwise fail
-        // See http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
-        return decodeURIComponent(escape(atob(contents.content.replace(/\s/g, ''))));
-      });
+      var deferred = $.Deferred();
+
+      github.getFileContents(file.path, branch.commit.sha).then(
+        function(contents) {
+          if (contents.type === "file" && contents.encoding === "base64") {
+            deferred.resolve(decodeBase64ToText(contents.content));
+          }
+          else {
+            deferred.reject();
+          }
+        },
+        function() {
+          deferred.reject();
+        }
+      );
+
+      return deferred.promise();
     },
 
     saveTextFileContents: function(file, contents, branch) {
@@ -150,7 +171,7 @@ var Vidius = function(github) {
           branchName = 'content/' + timestamp,
           // TODO make a better commit message
           commitMessage = 'Updated file',
-          base64Contents = btoa(unescape(encodeURIComponent(contents)));
+          base64Contents = encodeTextToBase64(contents);
 
       return github.createBranch(branchName, branch.commit.sha).then(function() {
         return github.updateFileContents(
