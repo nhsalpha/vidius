@@ -99,37 +99,35 @@ var Vidius = function(github) {
     },
 
     generatePreview: function(file, contents, branch) {
-
-      function wait(ms) {
-        // http://blog.mediumequalsmessage.com/promise-deferred-objects-in-javascript-pt2-practical-use#common-use-cases
-        var deferred = $.Deferred();
-        setTimeout(deferred.resolve, ms);
-
-        return deferred.promise();
-      }
-
       return $.post(
         '/preview',
         {
           git_ref: branch.commit.sha,
           file_path: file.path,
           file_contents: contents
-        }).then(function(status_url) {
+        }
+      ).then(function(status_url) {
+        var deferred = $.Deferred(),
+            checkStatus = function() {
+              $.get(status_url).then(
+                function(preview_url) {
+                  if (preview_url) {
+                    deferred.resolve(preview_url);
+                  }
+                  else {
+                    window.setTimeout(checkStatus, 1000);
+                  }
+                },
+                function() {
+                  deferred.reject();
+                }
+              );
+            };
 
-          var checkStatus = function(preview_url) {
-            if (!! preview_url) {
-              return preview_url;
-            } else {
+        checkStatus();
 
-              console.log("Waiting for preview URL");
-              return wait(1000).then(function() {
-                return $.get(status_url).then(checkStatus);
-              });
-            }
-          }
-
-          return $.get(status_url).then(checkStatus);
-        })
+        return deferred.promise();
+      });
     },
 
     getTextFileContents: function(file, branch) {
