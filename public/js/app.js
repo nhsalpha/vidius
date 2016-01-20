@@ -142,11 +142,19 @@ var Vidius = function(github) {
     },
 
     getTextFileContents: function(file, branch) {
-      return github.getFileContents(file.path, branch.commit.sha).then(function(contents) {
-        // TODO check type is file and encoding is base64, otherwise fail
-        // See http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
-        return decodeBase64ToText(contents.content);
-      });
+      var deferred = $.Deferred();
+
+      github.getFileContents(file.path, branch.commit.sha).then(
+        function(contents) {
+          // TODO check type is file and encoding is base64, otherwise fail
+          deferred.resolve(decodeBase64ToText(contents.content));
+        },
+        function() {
+          deferred.reject();
+        }
+      );
+
+      return deferred.promise();
     },
 
     saveTextFileContents: function(file, contents, branch) {
